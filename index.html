@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Number Spinner</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    color: #fff;
+    padding: 1rem;
+  }
+  .container {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 420px;
+    width: 100%;
+  }
+  h1 {
+    margin: 0 0 1.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .controls {
+    margin-bottom: 1.5rem;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+  input[type="number"] {
+    width: 120px;
+    font-size: 1.3rem;
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    text-align: center;
+    outline: none;
+  }
+  input[type="number"]:focus {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px #4ecdc4;
+  }
+  .wheel-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 1.5rem auto;
+  }
+  .wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #ff6b6b 0deg 45deg,
+      #4ecdc4 45deg 90deg,
+      #45b7d1 90deg 135deg,
+      #96ceb4 135deg 180deg,
+      #ffeaa7 180deg 225deg,
+      #fd79a8 225deg 270deg,
+      #a29bfe 270deg 315deg,
+      #74b9ff 315deg 360deg
+    );
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.1);
+    transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+  }
+  .wheel::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    border: 4px solid #fff;
+  }
+  .pointer {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 28px solid #ff6b6b;
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+  .number-display {
+    font-size: 5rem;
+    font-weight: 800;
+    margin: 1rem 0 0.5rem;
+    min-height: 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -2px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .number-display.spinning {
+    animation: pulse 0.1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  button {
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+    color: white;
+    cursor: pointer;
+    margin-top: 1rem;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    transition: all 0.2s ease;
+  }
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .message {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    min-height: 1.5rem;
+    opacity: 0.9;
+  }
+  .winner {
+    color: #4ecdc4;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎲 Number Spinner</h1>
+    <div class="controls">
+      <label for="maxNum">Pick a number from 1 to</label>
+      <input type="number" id="maxNum" value="10" min="1" max="1000000">
+    </div>
+    <div class="wheel-container">
+      <div class="pointer"></div>
+      <div class="wheel" id="wheel"></div>
+    </div>
+    <div class="number-display" id="result">?</div>
+    <button id="spinBtn" onclick="spin()">SPIN!</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    let spinning = false;
+    let currentRotation = 0;
+
+    function spin() {
+      if (spinning) return;
+
+      const maxInput = document.getElementById('maxNum');
+      const max = parseInt(maxInput.value, 10);
+      if (!max || max < 1) {
+        alert('Please enter a valid number greater than 0');
+        return;
+      }
+
+      spinning = true;
+      const btn = document.getElementById('spinBtn');
+      const wheel = document.getElementById('wheel');
+      const resultEl = document.getElementById('result');
+      const messageEl = document.getElementById('message');
+
+      btn.disabled = true;
+      messageEl.textContent = '';
+      resultEl.classList.add('spinning');
+
+      // Calculate spin: several full turns + random offset
+      const extraSpins = 5 + Math.floor(Math.random() * 4); // 5-8 full spins
+      const randomOffset = Math.random() * 360;
+      const totalRotation = currentRotation + (extraSpins * 360) + randomOffset;
+      currentRotation = totalRotation % 360; // keep it reasonable
+
+      wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+      // Rapidly change the displayed number
+      let changeCount = 0;
+      const maxChanges = 60;
+      const interval = setInterval(() => {
+        resultEl.textContent = Math.floor(Math.random() * max) + 1;
+        changeCount++;
+        if (changeCount >= maxChanges) {
+          clearInterval(interval);
+        }
+      }, 50);
+
+      // After animation ends, lock in the winner
+      setTimeout(() => {
+        clearInterval(interval);
+        const winner = Math.floor(Math.random() * max) + 1;
+        resultEl.textContent = winner;
+        resultEl.classList.remove('spinning');
+        messageEl.innerHTML = `<span class="winner">🎉 The number is ${winner}!</span>`;
+        spinning = false;
+        btn.disabled = false;
+      }, 4000);
+    }
+
+    // Allow Enter key to spin
+    document.getElementById('maxNum').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') spin();
+    });
+  </script>
+</body>
+</html>
